@@ -1,4 +1,4 @@
 
 *.s64
-waitframe.c64
 *.c64
+*.prg

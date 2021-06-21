@@ -181,6 +181,19 @@ loop      inx
           
 ; Initialise sprite positions and shapes
 initSprites
+          ;set sprite flags
+          lda #0
+          sta VIC_SPRITE_X_EXTEND
+		lda #$ff
+          sta VIC_SPRITE_ENABLE
+          sta VIC_SPRITE_MULTICOLOR
+          
+          ;sprite multi colors
+          lda #11
+          sta VIC_SPRITE_MULTICOLOR_1
+          lda #1
+          sta VIC_SPRITE_MULTICOLOR_2
+
           ldx #$00
           lda #$25
           sta PARAM1
@@ -202,6 +215,9 @@ initSpriteLoop
 drawSprites
           lda #$ff
           sta VIC_SPRITE_ENABLE
+		
+		lda #SPRITE_0
+		sta SPRITE_POINTER_BASE
           
           ldx #$00
           
