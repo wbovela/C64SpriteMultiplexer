@@ -43,59 +43,59 @@ NUMBER_OF_SPRITES_DIV_4       = 8
 ;sprite number constant
 SPRITE_BASE                   = 64
 
-SPRITE_0	= SPRITE_BASE + 0
-SPRITE_1	= SPRITE_BASE + 1
-SPRITE_2	= SPRITE_BASE + 2
-SPRITE_3	= SPRITE_BASE + 3
+SPRITE_0  = SPRITE_BASE + 0
+SPRITE_1  = SPRITE_BASE + 1
+SPRITE_2  = SPRITE_BASE + 2
+SPRITE_3  = SPRITE_BASE + 3
 SPRITE_4  = SPRITE_BASE + 4
 SPRITE_5  = SPRITE_BASE + 5
-SPRITE_6	= SPRITE_BASE + 6
-SPRITE_7	= SPRITE_BASE + 7
-SPRITE_8	= SPRITE_BASE + 8
-SPRITE_9	= SPRITE_BASE + 9
-SPRITE_10	= SPRITE_BASE + 10
-SPRITE_11	= SPRITE_BASE + 11
-SPRITE_12	= SPRITE_BASE + 12
-SPRITE_13	= SPRITE_BASE + 13
-SPRITE_14	= SPRITE_BASE + 14
-SPRITE_15	= SPRITE_BASE + 15
-SPRITE_16	= SPRITE_BASE + 16
-SPRITE_17	= SPRITE_BASE + 17
-SPRITE_18	= SPRITE_BASE + 18
-SPRITE_19	= SPRITE_BASE + 19
-SPRITE_20	= SPRITE_BASE + 20
-SPRITE_21	= SPRITE_BASE + 21
-SPRITE_22	= SPRITE_BASE + 22
-SPRITE_23	= SPRITE_BASE + 23
-SPRITE_24	= SPRITE_BASE + 24
-SPRITE_25	= SPRITE_BASE + 25
-SPRITE_26	= SPRITE_BASE + 26
-SPRITE_27	= SPRITE_BASE + 27
-SPRITE_28	= SPRITE_BASE + 28
-SPRITE_29	= SPRITE_BASE + 29
-SPRITE_30	= SPRITE_BASE + 30
-SPRITE_31	= SPRITE_BASE + 31
+SPRITE_6  = SPRITE_BASE + 6
+SPRITE_7  = SPRITE_BASE + 7
+SPRITE_8  = SPRITE_BASE + 8
+SPRITE_9  = SPRITE_BASE + 9
+SPRITE_10 = SPRITE_BASE + 10
+SPRITE_11 = SPRITE_BASE + 11
+SPRITE_12 = SPRITE_BASE + 12
+SPRITE_13 = SPRITE_BASE + 13
+SPRITE_14 = SPRITE_BASE + 14
+SPRITE_15 = SPRITE_BASE + 15
+SPRITE_16 = SPRITE_BASE + 16
+SPRITE_17 = SPRITE_BASE + 17
+SPRITE_18 = SPRITE_BASE + 18
+SPRITE_19 = SPRITE_BASE + 19
+SPRITE_20 = SPRITE_BASE + 20
+SPRITE_21 = SPRITE_BASE + 21
+SPRITE_22 = SPRITE_BASE + 22
+SPRITE_23 = SPRITE_BASE + 23
+SPRITE_24 = SPRITE_BASE + 24
+SPRITE_25 = SPRITE_BASE + 25
+SPRITE_26 = SPRITE_BASE + 26
+SPRITE_27 = SPRITE_BASE + 27
+SPRITE_28 = SPRITE_BASE + 28
+SPRITE_29 = SPRITE_BASE + 29
+SPRITE_30 = SPRITE_BASE + 30
+SPRITE_31 = SPRITE_BASE + 31
 
 ;this creates a basic start
 *=$0801
 
           ;SYS 2064
           !byte $0C,$08,$0A,$00,$9E,$20,$32,$30,$36,$34,$00,$00,$00,$00,$00
-		
+    
           ;init sprite registers
           ;no visible sprites
           lda #0
           sta VIC_SPRITE_ENABLE
-          
-          ;set charset
+                    
+          ;set charset to $3000 from VIC start = $C000+$3000 = $F000
           lda #$3c
           sta VIC_MEMORY_CONTROL
 
-          ;VIC bank
+          ;set VIC to bank 3 = $C000-$FFFF
           lda CIA_PRA
           and #$fc
           sta CIA_PRA
-		
+    
           ;----------------------------------
           ;copy charset and sprites to target          
           ;----------------------------------
@@ -121,7 +121,7 @@ SPRITE_31	= SPRITE_BASE + 31
           
           ;now copy
           jsr CopyCharSet
-		
+    
           ;take source address from SPRITES
           lda #<SPRITES
           sta ZEROPAGE_POINTER_1
@@ -134,8 +134,8 @@ SPRITE_31	= SPRITE_BASE + 31
           lda PARAM1
           sta $01
           
-          cli		
-		
+          cli   
+    
           ;background black
           lda #0
           sta VIC_BORDER_COLOR
@@ -157,7 +157,9 @@ SPRITE_31	= SPRITE_BASE + 31
           lda #32
           ldy #1
           jsr ClearScreen
-		
+          
+          jsr initSprites
+    
 ;------------------------------------------------------------
 ;the main game loop
 ;------------------------------------------------------------
@@ -165,17 +167,65 @@ SPRITE_31	= SPRITE_BASE + 31
 GameLoop  
           jsr WaitFrame
           
-          lda #0
+          lda #6
           sta VIC_BORDER_COLOR
-		
-
-		ldx #00
-loop		inx
-		bne loop
+    
+          jsr drawSprites
           
-          jmp GameLoop		
-		
-		
+          ldx #00
+loop      inx
+          bne loop
+          
+          jmp GameLoop    
+    
+          
+; Initialise sprite positions and shapes
+initSprites
+          ldx #$00
+          lda #$25
+          sta PARAM1
+initSpriteLoop
+          sta SPRITE_POSITION_X,x
+          lda #$35
+          sta SPRITE_POSITION_Y,x
+          lda PARAM1
+          clc
+          adc #28
+          sta PARAM1
+          inx
+          cpx #$08
+          bne initSpriteLoop
+          
+          rts
+
+; Draw hardware sprites
+drawSprites
+          lda #$ff
+          sta VIC_SPRITE_ENABLE
+          
+          ldx #$00
+          
+drawNextSprite
+          lda #$01
+          sta VIC_SPRITE_COLOR, x
+          
+          lda SPRITE_POSITION_X, x
+          sta PARAM1
+          txa
+          asl
+          tay
+          lda PARAM1
+          sta VIC_SPRITE_X_POS, y
+          
+          lda SPRITE_POSITION_Y, x
+          sta VIC_SPRITE_Y_POS, y
+          
+          inx
+          cpx #$08
+          bne drawNextSprite
+                  
+          rts 
+
 ;------------------------------------------------------------
 ;wait for the raster to reach line $f8
 ;this is keeping our timing stable
@@ -190,17 +240,17 @@ WaitFrame
 
           ;wait for the raster to reach line $f8 (should be closer to the start of this line this way)
 .WaitStep2
-		lda #02
-		sta VIC_BORDER_COLOR
-		
+          lda #02
+          sta VIC_BORDER_COLOR
+    
           lda $d012
           cmp #$F8
           bne .WaitStep2
           
           rts
-	
+  
 ;------------------------------------------------------------
-;copies charset from ZEROPAGE_POINTER_1 to ZEROPAGE_POINTER_2
+;copies charset from ZEROPAGE_POINTER_1 to $F000
 ;------------------------------------------------------------
 
 !zone CopyCharSet
@@ -242,9 +292,9 @@ CopyCharSet
 
 .CopyCharsetDone
           rts
-		
+    
 ;------------------------------------------------------------
-;copies sprites from ZEROPAGE_POINTER_1 to ZEROPAGE_POINTER_2
+;copies sprites from ZEROPAGE_POINTER_1 to $D000
 ;       sprites are copied in numbers of four
 ;------------------------------------------------------------
 
@@ -270,8 +320,8 @@ CopySprites
           cpx #NUMBER_OF_SPRITES_DIV_4
           bne .SpriteLoop
 
-          rts	
-	
+          rts 
+  
 ;------------------------------------------------------------
 ;clears the screen
 ;A = char
@@ -301,10 +351,19 @@ ClearScreen
           cpx #250
           bne .ColorLoop
 
-          rts		
+          rts   
 
+SPRITE_POSITION_X
+          !fill 32,0
+          
+SPRITE_POSITION_Y
+          !fill 32,0
+
+SPRITE_SHAPE
+          !fill 32,0
+          
 CHARSET
           !binary "j.chr"
-				
+        
 SPRITES
-          !binary "j.spr"		
+          !binary "j.spr"   
