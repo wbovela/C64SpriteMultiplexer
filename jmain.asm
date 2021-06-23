@@ -184,7 +184,7 @@ initSprites
           ;set sprite flags
           lda #0
           sta VIC_SPRITE_X_EXTEND
-		lda #$ff
+    lda #$ff
           sta VIC_SPRITE_ENABLE
           sta VIC_SPRITE_MULTICOLOR
           
@@ -215,9 +215,9 @@ initSpriteLoop
 drawSprites
           lda #$ff
           sta VIC_SPRITE_ENABLE
-		
-		lda #SPRITE_0
-		sta SPRITE_POINTER_BASE
+    
+    lda #SPRITE_0
+    sta SPRITE_POINTER_BASE
           
           ldx #$00
           
@@ -376,7 +376,7 @@ SPRITE_POSITION_Y
           !fill 32,0
 
 SPRITE_SHAPE
-          !fill 32,0
+          !fill 32, [SPRITE_BASE + i]
           
 CHARSET
           !binary "j.chr"
