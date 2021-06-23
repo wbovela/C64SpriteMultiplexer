@@ -210,17 +210,27 @@ initSpriteLoop
           bne initSpriteLoop
           
           rts
-
+          
+;------------------------------------------------------------
 ; Draw hardware sprites
+;------------------------------------------------------------
+!zone drawSprites
 drawSprites
+          ; enable all sprites
           lda #$ff
           sta VIC_SPRITE_ENABLE
     
-    lda #SPRITE_0
-    sta SPRITE_POINTER_BASE
-          
+          ; pick sprites shapes from sprite shape array
           ldx #$00
+-          
+          lda SPRITE_SHAPE, x
+          sta SPRITE_POINTER_BASE,x
+          inx
+          cpx #$08
+          bne -
           
+          ; draw sprite shapes on their locations
+          ldx #$00
 drawNextSprite
           lda #$01
           sta VIC_SPRITE_COLOR, x
