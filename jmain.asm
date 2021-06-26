@@ -163,7 +163,7 @@ SPRITE_31 = SPRITE_BASE + 31
 ;------------------------------------------------------------
 ;the main game loop
 ;------------------------------------------------------------
-
+!zone GameLoop
 GameLoop  
           jsr WaitFrame
           
@@ -173,18 +173,20 @@ GameLoop
           jsr drawSprites
           
           ldx #00
-loop      inx
-          bne loop
+-         inx
+          bne -
           
           jmp GameLoop    
     
-          
+;------------------------------------------------------------          
 ; Initialise sprite positions and shapes
+;------------------------------------------------------------
+!zone InitSprites
 initSprites
           ;set sprite flags
           lda #0
           sta VIC_SPRITE_X_EXTEND
-    lda #$ff
+          lda #$ff
           sta VIC_SPRITE_ENABLE
           sta VIC_SPRITE_MULTICOLOR
           
@@ -278,7 +280,6 @@ WaitFrame
 ;------------------------------------------------------------
 ;copies charset from ZEROPAGE_POINTER_1 to $F000
 ;------------------------------------------------------------
-
 !zone CopyCharSet
 CopyCharSet
           ;set target address ($F000)
