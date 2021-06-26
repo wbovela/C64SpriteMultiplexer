@@ -17,6 +17,8 @@ VIC_BACKGROUND_COLOR    = $d021
 
 CIA_PRA                 = $dd00
 
+VIC_INT_SCANLINE = %.......1
+
 ;global parameters
 PARAM1                  = $03
 PARAM2                  = $04
@@ -163,7 +165,7 @@ SPRITE_31 = SPRITE_BASE + 31
 ;------------------------------------------------------------
 ;the main game loop
 ;------------------------------------------------------------
-!zone GameLoop
+!zone GameLoop {
 GameLoop  
           jsr WaitFrame
           
@@ -177,7 +179,7 @@ GameLoop
           bne -
           
           jmp GameLoop    
-    
+}
 ;------------------------------------------------------------          
 ; Initialise sprite positions and shapes
 ;------------------------------------------------------------
