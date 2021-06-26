@@ -199,7 +199,7 @@ initSprites
           ldx #$00
           lda #$25
           sta PARAM1
-initSpriteLoop
+-
           sta SPRITE_POSITION_X,x
           lda #$35
           sta SPRITE_POSITION_Y,x
@@ -209,7 +209,7 @@ initSpriteLoop
           sta PARAM1
           inx
           cpx #$08
-          bne initSpriteLoop
+          bne -
           
           rts
           
@@ -233,7 +233,7 @@ drawSprites
           
           ; draw sprite shapes on their locations
           ldx #$00
-drawNextSprite
+.drawNextSprite
           lda #$01
           sta VIC_SPRITE_COLOR, x
           
@@ -250,7 +250,7 @@ drawNextSprite
           
           inx
           cpx #$08
-          bne drawNextSprite
+          bne .drawNextSprite
                   
           rts 
 
@@ -380,6 +380,33 @@ ClearScreen
 
           rts   
 
+;------------------------------------------------------------
+; find lowest SPRITE_POSTITION_Y index
+; output:
+;  PARAM1 lowest value
+;  PARAM2 index of lowest value
+;------------------------------------------------------------
+!zone findLowestY
+.findLowestY 
+          ldy #$1f
+          ldx #$ff
+          stx PARAM1
+-          
+          lda SPRITE_POSITION_Y,y
+          cmp PARAM1
+          bcs .valueIsNotLower
+          
+          sta PARAM1
+          sty PARAM2
+.valueIsNotLower
+          dey
+          cpy #$ff
+          bne -
+          rts
+ 
+;------------------------------------------------------------
+; DATA DEFINITIONS
+;------------------------------------------------------------
 SPRITE_POSITION_X
           !fill 32,0
           
