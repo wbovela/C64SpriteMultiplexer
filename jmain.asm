@@ -1,6 +1,8 @@
 ;compile to this filename
 !to "jmain.prg",cbm
 
+!source "macros.asm"
+
 VIC_SPRITE_X_POS        = $d000
 VIC_SPRITE_Y_POS        = $d001
 VIC_SPRITE_X_EXTEND     = $d010
@@ -165,7 +167,7 @@ SPRITE_31 = SPRITE_BASE + 31
 ;------------------------------------------------------------
 ;the main game loop
 ;------------------------------------------------------------
-!zone GameLoop {
+!zone GameLoop 
 GameLoop  
           jsr WaitFrame
           
@@ -179,11 +181,11 @@ GameLoop
           bne -
           
           jmp GameLoop    
-}
+
 ;------------------------------------------------------------          
 ; Initialise sprite positions and shapes
 ;------------------------------------------------------------
-!zone InitSprites
+!zone InitSprites 
 initSprites
           ;set sprite flags
           lda #0
@@ -214,11 +216,11 @@ initSprites
           bne -
           
           rts
-          
+    
 ;------------------------------------------------------------
 ; Draw hardware sprites
 ;------------------------------------------------------------
-!zone drawSprites
+!zone drawSprites 
 drawSprites
           ; enable all sprites
           lda #$ff
@@ -260,7 +262,7 @@ drawSprites
 ;wait for the raster to reach line $f8
 ;this is keeping our timing stable
 ;------------------------------------------------------------
-!zone WaitFrame
+!zone WaitFrame 
 WaitFrame 
           ;are we on line $F8 already? if so, wait for the next full screen
           ;prevents mistimings if called too fast
@@ -278,11 +280,11 @@ WaitFrame
           bne .WaitStep2
           
           rts
-  
+ 
 ;------------------------------------------------------------
 ;copies charset from ZEROPAGE_POINTER_1 to $F000
 ;------------------------------------------------------------
-!zone CopyCharSet
+!zone CopyCharSet 
 CopyCharSet
           ;set target address ($F000)
           lda #$00
@@ -321,7 +323,7 @@ CopyCharSet
 
 .CopyCharsetDone
           rts
-    
+  
 ;------------------------------------------------------------
 ;copies sprites from ZEROPAGE_POINTER_1 to $D000
 ;       sprites are copied in numbers of four
@@ -423,3 +425,4 @@ CHARSET
         
 SPRITES
           !binary "j.spr"   
+		;!source "sprites.asm"
