@@ -191,8 +191,8 @@ GameLoop
 ; a holds 0 or sprite shape of sprite #7
 ; if x==8 no empty sprite was found
 ;------------------------------------------------------------
-!zone findEmptySprite
-findEmptySprite
+!zone findEmptyHWSprite
+findEmptyHWSprite
           ldx #$00
 -         lda SPRITE_POINTER_BASE,x
           beq .endLoop
@@ -202,7 +202,7 @@ findEmptySprite
           bne -
 .endLoop
          rts
-
+                   
 ;------------------------------------------------------------          
 ; Initialise sprite positions and shapes
 ;------------------------------------------------------------
