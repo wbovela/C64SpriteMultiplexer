@@ -44,6 +44,9 @@ SPRITE_POINTER_BASE     = SCREEN_CHAR + 1016
 ;number of sprites divided by four
 NUMBER_OF_SPRITES_DIV_4       = 8
 
+;number of hardware sprites in use
+NO_SPRITES_IN_USE             = 0
+
 ;sprite number constant
 SPRITE_BASE                   = 64
 
@@ -181,6 +184,24 @@ GameLoop
           bne -
           
           jmp GameLoop    
+
+;------------------------------------------------------------          
+; Find an empty / unused hardware sprite
+; x holds sprite number of empty sprite
+; a holds 0 or sprite shape of sprite #7
+; if x==8 no empty sprite was found
+;------------------------------------------------------------
+!zone findEmptySprite
+findEmptySprite
+          ldx #$00
+-         lda SPRITE_POINTER_BASE,x
+          beq .endLoop
+          inx
+          ; check no more than 8 sprites
+          cpx #$08
+          bne -
+.endLoop
+         rts
 
 ;------------------------------------------------------------          
 ; Initialise sprite positions and shapes
@@ -425,4 +446,4 @@ CHARSET
         
 SPRITES
           !binary "j.spr"   
-		;!source "sprites.asm"
+    ;!source "sprites.asm"
