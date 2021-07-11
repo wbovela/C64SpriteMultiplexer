@@ -413,10 +413,16 @@ ClearScreen
 ;------------------------------------------------------------
 !zone findLowestY
 .findLowestY 
+          ; progress from top of array down
           ldy #$1f
           ldx #$ff
           stx PARAM1
 -          
+          ; check if sprite was handled before this frame
+          lda SPRITE_DONE,y
+          bne .spriteAlreadyDone
+          
+          ; check if this is sprite has a lower position
           lda SPRITE_POSITION_Y,y
           cmp PARAM1
           bcs .valueIsNotLower
@@ -424,6 +430,8 @@ ClearScreen
           sta PARAM1
           sty PARAM2
 .valueIsNotLower
+.spriteAlreadyDone
+          ; next item, if we wrap around we're done
           dey
           cpy #$ff
           bne -
@@ -432,14 +440,21 @@ ClearScreen
 ;------------------------------------------------------------
 ; DATA DEFINITIONS
 ;------------------------------------------------------------
+; current x position for each sprite
 SPRITE_POSITION_X
           !fill 32,0
-          
+ 
+; current y position for each sprite          
 SPRITE_POSITION_Y
           !fill 32,0
 
+; current shape for each sprite
 SPRITE_SHAPE
           !fill 32, [SPRITE_BASE + i]
+
+; boolean to indicate if a sprite has been handled this frame          
+SPRITE_DONE
+          !fill 32, 0
           
 CHARSET
           !binary "j.chr"
